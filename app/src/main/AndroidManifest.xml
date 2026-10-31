@@ -5,7 +5,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="GlassAnime"
+        android:label="SQWPFun"
         android:supportsRtl="true"
         android:theme="@style/Theme.GlassAnime">
         <activity
