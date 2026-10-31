@@ -233,25 +233,28 @@ fun LiquidBottomTabs(
                     shape = { RoundedCornerShape(percent = 50) },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
+                        // 给一个基础强度：静止时也有边缘折射/彩边，
+                        // 按压时再拉满（上游是 0 起步，静止等于没有玻璃边）
+                        val k = 0.55f + 0.45f * progress
                         lens(
-                            10f.dp.toPx() * progress,
-                            14f.dp.toPx() * progress,
+                            11f.dp.toPx() * k,
+                            15f.dp.toPx() * k,
                             chromaticAberration = true
                         )
                     },
                     highlight = {
                         val progress = dampedDragAnimation.pressProgress
-                        Highlight.Default.copy(alpha = progress)
+                        Highlight.Default.copy(alpha = 0.45f + 0.55f * progress)
                     },
                     shadow = {
                         val progress = dampedDragAnimation.pressProgress
-                        Shadow(alpha = progress)
+                        Shadow(radius = 10f.dp, alpha = 0.45f + 0.5f * progress)
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
-                            radius = 8f.dp * progress,
-                            alpha = progress
+                            radius = 8f.dp * (0.5f + 0.5f * progress),
+                            alpha = 0.5f + 0.5f * progress
                         )
                     },
                     layerBlock = {
@@ -264,11 +267,10 @@ fun LiquidBottomTabs(
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
                         drawRect(
-                            if (isLightTheme) Color.Black.copy(0.1f)
-                            else Color.White.copy(0.1f),
-                            alpha = 1f - progress
+                            if (isLightTheme) Color.White.copy(alpha = 0.26f + 0.18f * progress)
+                            else Color.White.copy(alpha = 0.12f + 0.10f * progress)
                         )
-                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
+                        drawRect(accentColor.copy(alpha = 0.06f + 0.05f * progress))
                     }
                 )
                 .height(56f.dp)
