@@ -100,7 +100,7 @@ fun GlassAnimeApp() {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(horizontal = 14.dp, vertical = 14.dp)
         ) {
             TABS.forEachIndexed { i, tab ->
                 LiquidBottomTab({ index = i }) {

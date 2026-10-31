@@ -198,52 +198,38 @@ fun LiquidBottomTabs(
                         if (isLtr) dampedDragAnimation.value * tabWidth + panelOffset
                         else size.width - (dampedDragAnimation.value + 1f) * tabWidth + panelOffset
                 }
-                .then(interactiveHighlight.gestureModifier)
-                .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
                     shape = { RoundedCornerShape(percent = 50) },
                     effects = {
-                        val progress = 1f
+                        // 口沿一圈很薄的折射带：只在边缘弯一点背景，不把图标/文字拉散
                         lens(
-                            10f.dp.toPx() * progress,
-                            14f.dp.toPx() * progress,
+                            9f.dp.toPx(),
+                            5f.dp.toPx(),
                             chromaticAberration = true
                         )
                     },
                     highlight = {
-                        val progress = 1f
-                        Highlight.Default.copy(alpha = progress)
+                        Highlight.Default.copy(alpha = 0.5f)
                     },
                     shadow = {
-                        val progress = 1f
-                        Shadow(alpha = progress)
+                        Shadow(radius = 8f.dp, alpha = 0.22f)
                     },
                     innerShadow = {
-                        val progress = 1f
-                        InnerShadow(
-                            radius = 8f.dp * progress,
-                            alpha = progress
-                        )
+                        InnerShadow(radius = 6f.dp, alpha = 0.10f)
                     },
                     layerBlock = {
-                        scaleX = dampedDragAnimation.scaleX
-                        scaleY = dampedDragAnimation.scaleY
-                        val velocity = dampedDragAnimation.velocity / 10f
-                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
-                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                        scaleX = 1f
+                        scaleY = 1f
                     },
                     onDrawSurface = {
-                        val progress = 1f
                         drawRect(
-                            if (isLightTheme) Color.Black.copy(0.1f)
-                            else Color.White.copy(0.1f),
-                            alpha = 1f - progress
+                            if (isLightTheme) Color.White.copy(0.10f)
+                            else Color.White.copy(0.06f)
                         )
-                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
                     }
                 )
-                .height(72f.dp)
+                .height(62f.dp)
                 .fillMaxWidth(1f / tabsCount)
         )
     }
