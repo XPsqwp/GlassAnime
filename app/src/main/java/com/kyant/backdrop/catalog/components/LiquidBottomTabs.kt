@@ -213,7 +213,7 @@ fun LiquidBottomTabs(
                     .height(64f.dp)
                     .fillMaxWidth()
                     .padding(4f.dp)
-                    .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
+                    .graphicsLayer(colorFilter = ColorFilter.tint(accentColor.copy(alpha = 0.6f))),
                 verticalAlignment = Alignment.CenterVertically,
                 // 这里刻意不画内容：这一层的唯一作用是给透镜提供
                 // "一层被染色的玻璃薄片"，内容由上面可见的 Row 负责。
@@ -229,22 +229,26 @@ fun LiquidBottomTabs(
                         if (isLtr) dampedDragAnimation.value * tabWidth + panelOffset
                         else size.width - (dampedDragAnimation.value + 1f) * tabWidth + panelOffset
                 }
-                
+                .width(with(LocalDensity.current) { (tabWidth - 8f.dp.toPx()).toDp() })
+                .height(56f.dp)
+                .align(Alignment.CenterStart)
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
                     shape = { RoundedCornerShape(percent = 50) },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
+                        vibrancy()
+                        blur(10f.dp.toPx())
                         lens(
                             10f.dp.toPx() * progress,
                             14f.dp.toPx() * progress,
-                            chromaticAberration = true
+                            chromaticAberration = progress > 0.02f
                         )
                     },
                     highlight = {
                         val progress = dampedDragAnimation.pressProgress
-                        Highlight.Default.copy(alpha = progress)
+                        Highlight.Default.copy(alpha = 0.40f + 0.55f * progress)
                     },
                     shadow = {
                         val progress = dampedDragAnimation.pressProgress
@@ -266,16 +270,17 @@ fun LiquidBottomTabs(
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
+                        // 选中胶囊的"玻璃底色"：白 + 一点 accent，按压时更亮
                         drawRect(
-                            if (isLightTheme) Color.Black.copy(0.1f)
-                            else Color.White.copy(0.1f),
-                            alpha = 1f - progress
+                            if (isLightTheme) {
+                                Color.White.copy(alpha = 0.30f + 0.20f * progress)
+                            } else {
+                                Color.White.copy(alpha = 0.12f + 0.10f * progress)
+                            }
                         )
-                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
+                        drawRect(accentColor.copy(alpha = 0.07f + 0.05f * progress))
                     }
                 )
-                .height(56f.dp)
-                .fillMaxWidth(1f / tabsCount)
         )
     }
 }
