@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.glass.anime"
+    namespace = "com.sqwpf.fun"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.glass.anime"
+        applicationId = "com.sqwpf.fun"
         minSdk = 31          // RenderEffect 需要 API 31；运行时着色器 33
         targetSdk = 35
         versionCode = 1
