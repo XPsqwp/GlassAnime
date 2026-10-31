@@ -49,6 +49,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
     // 液态玻璃
     implementation("io.github.kyant0:backdrop:1.0.0")
+    implementation("io.github.kyant0:shapes:1.1.0")
     // 图片加载
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
 }
