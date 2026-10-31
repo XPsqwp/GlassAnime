@@ -202,7 +202,7 @@ fun GlassAnimeApp() {
                                     lens(
                                         10.dp.toPx() * pr,
                                         14.dp.toPx() * pr,
-                                        chromaticAberration = pr > 0.05f
+                                        chromaticAberration = false
                                     )
                                 },
                                 highlight = {
@@ -210,12 +210,17 @@ fun GlassAnimeApp() {
                                 },
                                 shadow = {
                                     Shadow(
-                                        radius = 10.dp,
-                                        alpha = 0.35f + 0.5f * press.value
+                                        radius = 6.dp,
+                                        color = Color.Black.copy(alpha = 0.06f),
+                                        alpha = 0.5f
                                     )
                                 },
                                 innerShadow = {
-                                    InnerShadow(radius = 6.dp, alpha = 0.55f)
+                                    InnerShadow(
+                                        radius = 4.dp,
+                                        color = Color.Black.copy(alpha = 0.05f),
+                                        alpha = 0.5f
+                                    )
                                 },
                                 onDrawSurface = {
                                     drawRect(Color.White.copy(alpha = 0.26f))
@@ -231,20 +236,20 @@ fun GlassAnimeApp() {
                         Box(
                             Modifier
                                 .weight(1f)
-                                .fillMaxHeight()
-                                .pointerInput(i) {
-                                    detectHorizontalDragGestures(
-                                        onDragStart = { },
-                                        onDragEnd = { }
-                                    ) { change, _ -> change.consume() }
-                                },
+                                .fillMaxHeight(),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .clickable { index = i }
+                                    .clickable {
+                                        index = i
+                                        scope.launch {
+                                            press.snapTo(1f)
+                                            press.animateTo(0f)
+                                        }
+                                    }
                             ) {
                                 Spacer(Modifier.height(10.dp))
                                 Icon(
