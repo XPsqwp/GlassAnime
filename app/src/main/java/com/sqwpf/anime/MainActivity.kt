@@ -273,8 +273,8 @@ private fun HomePage() {
                             .background(
                                 Brush.linearGradient(
                                     listOf(
-                                        Color.hsl(item.hue, 0.55f, 0.72f),
-                                        Color.hsl(item.hue + 30f, 0.5f, 0.55f)
+                                        Color.hsl(item.hue % 360f, 0.55f, 0.72f),
+                                        Color.hsl((item.hue + 30f) % 360f, 0.5f, 0.55f)
                                     )
                                 ),
                                 RoundedCornerShape(18.dp)
