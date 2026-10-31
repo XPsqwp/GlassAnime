@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.backdrops.layerBackdrop
@@ -44,6 +45,7 @@ import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -176,28 +178,48 @@ fun GlassAnimeApp() {
         ) {
             Box(Modifier.fillMaxSize()) {
                 if (tabPx > 0f) {
-                    // 选中透镜：独立的玻璃体，lens 只在按压/移动时出现
+                    val pillW = with(density) { (tabPx - 8.dp.toPx()).toDp() }
+                    val pillH = barHeight - 8.dp
+                    // 选中透镜：和整条栏同一套玻璃管线（vibrancy + blur + lens），
+                    // 再叠 Highlight / Shadow / InnerShadow，静态时就是一块玻璃，
+                    // 拖动时 progress 把 lens 和色散加进来。
                     Box(
                         Modifier
-                            .offset(x = with(density) { pillX.value.toDp() })
-                            .padding(4.dp)
-                            .width(with(density) { tabPx.toDp() } - 8.dp)
-                            .height(barHeight - 8.dp)
+                            .offset {
+                                IntOffset(
+                                    pillX.value.roundToInt(),
+                                    4.dp.roundToPx()
+                                )
+                            }
+                            .size(width = pillW, height = pillH)
                             .drawBackdrop(
                                 backdrop = backdrop,
                                 shape = { RoundedCornerShape(percent = 50) },
                                 effects = {
-                                    val p = press.value
+                                    val pr = press.value
+                                    vibrancy()
+                                    blur(6.dp.toPx())
                                     lens(
-                                        10.dp.toPx() * p,
-                                        14.dp.toPx() * p,
-                                        chromaticAberration = true
+                                        10.dp.toPx() * pr,
+                                        14.dp.toPx() * pr,
+                                        chromaticAberration = pr > 0.05f
                                     )
                                 },
-                                highlight = { Highlight.Default.copy(alpha = press.value) },
-                                shadow = { Shadow(alpha = press.value) },
+                                highlight = {
+                                    Highlight.Default.copy(alpha = 0.45f + 0.55f * press.value)
+                                },
+                                shadow = {
+                                    Shadow(
+                                        radius = 10.dp,
+                                        alpha = 0.35f + 0.5f * press.value
+                                    )
+                                },
+                                innerShadow = {
+                                    InnerShadow(radius = 6.dp, alpha = 0.55f)
+                                },
                                 onDrawSurface = {
-                                    drawRect(Color(0xFF0088FF).copy(alpha = 0.14f * (0.5f + press.value)))
+                                    drawRect(Color.White.copy(alpha = 0.26f))
+                                    drawRect(Color(0xFF0088FF).copy(alpha = 0.05f))
                                 }
                             )
                     )
