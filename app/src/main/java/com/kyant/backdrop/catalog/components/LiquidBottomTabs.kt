@@ -205,9 +205,11 @@ fun LiquidBottomTabs(
                         onDrawSurface = { drawRect(containerColor) }
                     )
                     
-                    .height(56f.dp)
+                    // 与可见层保持完全相同的尺寸，否则被透镜折射出来的
+                    // 副本会垂直错位，看起来像文字重影。
+                    .height(64f.dp)
                     .fillMaxWidth()
-                    .padding(horizontal = 4f.dp)
+                    .padding(4f.dp)
                     .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
                 verticalAlignment = Alignment.CenterVertically,
                 content = content
