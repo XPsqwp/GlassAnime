@@ -158,8 +158,6 @@ fun LiquidBottomTabs(
             )
         }
 
-        // 底栏本体：drawn once，同时把自己录进 tabsBackdrop，
-        // 供选中胶囊的透镜采样（这样图标会被折射，但屏幕上只有这一份内容）。
         Row(
             Modifier
                 .layerBackdrop(tabsBackdrop)
@@ -198,38 +196,52 @@ fun LiquidBottomTabs(
                         if (isLtr) dampedDragAnimation.value * tabWidth + panelOffset
                         else size.width - (dampedDragAnimation.value + 1f) * tabWidth + panelOffset
                 }
+                .then(interactiveHighlight.gestureModifier)
+                .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
                     shape = { RoundedCornerShape(percent = 50) },
                     effects = {
-                        // 口沿一圈很薄的折射带：只在边缘弯一点背景，不把图标/文字拉散
+                        val progress = dampedDragAnimation.pressProgress
                         lens(
-                            9f.dp.toPx(),
-                            5f.dp.toPx(),
+                            10f.dp.toPx() * progress,
+                            14f.dp.toPx() * progress,
                             chromaticAberration = true
                         )
                     },
                     highlight = {
-                        Highlight.Default.copy(alpha = 0.5f)
+                        val progress = dampedDragAnimation.pressProgress
+                        Highlight.Default.copy(alpha = progress)
                     },
                     shadow = {
-                        Shadow(radius = 8f.dp, alpha = 0.22f)
+                        val progress = dampedDragAnimation.pressProgress
+                        Shadow(alpha = progress)
                     },
                     innerShadow = {
-                        InnerShadow(radius = 6f.dp, alpha = 0.10f)
+                        val progress = dampedDragAnimation.pressProgress
+                        InnerShadow(
+                            radius = 8f.dp * progress,
+                            alpha = progress
+                        )
                     },
                     layerBlock = {
-                        scaleX = 1f
-                        scaleY = 1f
+                        scaleX = dampedDragAnimation.scaleX
+                        scaleY = dampedDragAnimation.scaleY
+                        val velocity = dampedDragAnimation.velocity / 10f
+                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
+                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
                     },
                     onDrawSurface = {
+                        val progress = dampedDragAnimation.pressProgress
                         drawRect(
-                            if (isLightTheme) Color.White.copy(0.10f)
-                            else Color.White.copy(0.06f)
+                            if (isLightTheme) Color.Black.copy(0.1f)
+                            else Color.White.copy(0.1f),
+                            alpha = 1f - progress
                         )
+                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
                     }
                 )
-                .height(62f.dp)
+                .height(56f.dp)
                 .fillMaxWidth(1f / tabsCount)
         )
     }
