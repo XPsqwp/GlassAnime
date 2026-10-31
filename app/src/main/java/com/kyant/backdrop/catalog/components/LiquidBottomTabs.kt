@@ -158,9 +158,11 @@ fun LiquidBottomTabs(
             )
         }
 
-        // ── 1. 底栏本体：模糊 + 折射整块背景 ─────────────────────────
+        // 底栏本体：drawn once，同时把自己录进 tabsBackdrop，
+        // 供选中胶囊的透镜采样（这样图标会被折射，但屏幕上只有这一份内容）。
         Row(
             Modifier
+                .layerBackdrop(tabsBackdrop)
                 .graphicsLayer {
                     translationX = panelOffset
                 }
@@ -188,56 +190,6 @@ fun LiquidBottomTabs(
             content = content
         )
 
-        // ── 2. 隐藏的"捕捉层"：只负责把自己的内容录进 tabsBackdrop ────
-        // 上游在这里同时放了 content，让指示器能折射图标文字。
-        // 但那样会让图标/文字被透镜再画一遍（重影 = 你说的"重叠"），
-        // 所以这里保持空内容：只录玻璃本体，不录文案。
-        CompositionLocalProvider(
-            LocalLiquidBottomTabScale provides {
-                lerp(1f, 1.2f, dampedDragAnimation.pressProgress)
-            }
-        ) {
-            Row(
-                Modifier
-                    .clearAndSetSemantics {}
-                    .alpha(0f)
-                    .layerBackdrop(tabsBackdrop)
-                    .graphicsLayer {
-                        translationX = panelOffset
-                    }
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { RoundedCornerShape(percent = 50) },
-                        effects = {
-                            val progress = dampedDragAnimation.pressProgress
-                            vibrancy()
-                            blur(8f.dp.toPx())
-                            lens(
-                                24f.dp.toPx() * progress,
-                                24f.dp.toPx() * progress
-                            )
-                        },
-                        highlight = {
-                            val progress = dampedDragAnimation.pressProgress
-                            Highlight.Default.copy(alpha = progress)
-                        },
-                        onDrawSurface = { drawRect(containerColor) }
-                    )
-                    .then(interactiveHighlight.modifier)
-                    .height(56f.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 4f.dp)
-                    .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
-                verticalAlignment = Alignment.CenterVertically,
-                content = {}
-            )
-        }
-
-        // ── 3. 选中指示器（那颗胶囊） ────────────────────────────────
-        // 上游把 lens 也乘了 pressProgress ⇒ 静止时折射量 = 0，胶囊就是一坨灰色。
-        // 这里只把 lens 抬成"静止就有折射"，而且只抬 lens：
-        // highlight / shadow / innerShadow / surface 全部保持上游的 progress 驱动，
-        // 所以不会出现之前那圈白晕（白晕是这四项给了高基线造成的）。
         Box(
             Modifier
                 .padding(horizontal = 4f.dp)
@@ -252,24 +204,23 @@ fun LiquidBottomTabs(
                     backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
                     shape = { RoundedCornerShape(percent = 50) },
                     effects = {
-                        val progress = dampedDragAnimation.pressProgress
-                        val k = 0.92f + 0.08f * progress
+                        val progress = 1f
                         lens(
-                            10f.dp.toPx() * k,
-                            14f.dp.toPx() * k,
+                            10f.dp.toPx() * progress,
+                            14f.dp.toPx() * progress,
                             chromaticAberration = true
                         )
                     },
                     highlight = {
-                        val progress = dampedDragAnimation.pressProgress
+                        val progress = 1f
                         Highlight.Default.copy(alpha = progress)
                     },
                     shadow = {
-                        val progress = dampedDragAnimation.pressProgress
+                        val progress = 1f
                         Shadow(alpha = progress)
                     },
                     innerShadow = {
-                        val progress = dampedDragAnimation.pressProgress
+                        val progress = 1f
                         InnerShadow(
                             radius = 8f.dp * progress,
                             alpha = progress
@@ -283,7 +234,7 @@ fun LiquidBottomTabs(
                         scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
                     },
                     onDrawSurface = {
-                        val progress = dampedDragAnimation.pressProgress
+                        val progress = 1f
                         drawRect(
                             if (isLightTheme) Color.Black.copy(0.1f)
                             else Color.White.copy(0.1f),
@@ -292,7 +243,7 @@ fun LiquidBottomTabs(
                         drawRect(Color.Black.copy(alpha = 0.03f * progress))
                     }
                 )
-                .height(56f.dp)
+                .height(72f.dp)
                 .fillMaxWidth(1f / tabsCount)
         )
     }
