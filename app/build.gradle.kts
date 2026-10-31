@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.sqwpf.anime"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.sqwpf.anime"
         minSdk = 31          // RenderEffect 需要 API 31；运行时着色器 33
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1"
     }
