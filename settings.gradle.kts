@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "GlassAnime"
+rootProject.name = "SQWPFun"
 include(":app")
