@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -25,6 +24,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -203,21 +203,17 @@ fun LiquidBottomTabs(
                             val progress = dampedDragAnimation.pressProgress
                             Highlight.Default.copy(alpha = progress)
                         },
-                        onDrawSurface = {
-                            drawRect(containerColor)
-                            drawRect(accentColor.copy(alpha = 0.10f))
-                        }
+                        onDrawSurface = { drawRect(containerColor) }
                     )
                     
-                    // 与可见层保持完全相同的尺寸，否则被透镜折射出来的
-                    // 副本会垂直错位，看起来像文字重影。
-                    .height(64f.dp)
+                    .height(56f.dp)
                     .fillMaxWidth()
-                    .padding(4f.dp)
-                    .graphicsLayer(colorFilter = ColorFilter.tint(accentColor.copy(alpha = 0.6f))),
+                    .padding(horizontal = 4f.dp)
+                    .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
                 verticalAlignment = Alignment.CenterVertically,
-                // 这里刻意不画内容：这一层的唯一作用是给透镜提供
-                // "一层被染色的玻璃薄片"，内容由上面可见的 Row 负责。
+                // ← 与上游唯一的差别：
+                // 这一层只用于"被透镜采样"，如果把 content 也画进来，
+                // 透镜会把图标文字再画一遍（重影）。这里只保留玻璃薄片。
                 content = {}
             )
         }
@@ -230,26 +226,22 @@ fun LiquidBottomTabs(
                         if (isLtr) dampedDragAnimation.value * tabWidth + panelOffset
                         else size.width - (dampedDragAnimation.value + 1f) * tabWidth + panelOffset
                 }
-                .width(with(LocalDensity.current) { (tabWidth - 8f.dp.toPx()).toDp() })
-                .height(56f.dp)
-                .align(Alignment.CenterStart)
+                
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
-                    backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
+                    backdrop = backdrop,
                     shape = { RoundedCornerShape(percent = 50) },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        vibrancy()
-                        blur(10f.dp.toPx())
                         lens(
                             10f.dp.toPx() * progress,
                             14f.dp.toPx() * progress,
-                            chromaticAberration = progress > 0.02f
+                            chromaticAberration = true
                         )
                     },
                     highlight = {
                         val progress = dampedDragAnimation.pressProgress
-                        Highlight.Default.copy(alpha = 0.40f + 0.55f * progress)
+                        Highlight.Default.copy(alpha = progress)
                     },
                     shadow = {
                         val progress = dampedDragAnimation.pressProgress
@@ -271,17 +263,16 @@ fun LiquidBottomTabs(
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        // 选中胶囊的"玻璃底色"：白 + 一点 accent，按压时更亮
                         drawRect(
-                            if (isLightTheme) {
-                                Color.White.copy(alpha = 0.30f + 0.20f * progress)
-                            } else {
-                                Color.White.copy(alpha = 0.12f + 0.10f * progress)
-                            }
+                            if (isLightTheme) Color.Black.copy(0.1f)
+                            else Color.White.copy(0.1f),
+                            alpha = 1f - progress
                         )
-                        drawRect(accentColor.copy(alpha = 0.07f + 0.05f * progress))
+                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
                     }
                 )
+                .height(56f.dp)
+                .fillMaxWidth(1f / tabsCount)
         )
     }
 }
