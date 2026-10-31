@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.sqwpf.fun"
+    namespace = "com.sqwpf.anime"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.sqwpf.fun"
+        applicationId = "com.sqwpf.anime"
         minSdk = 31          // RenderEffect 需要 API 31；运行时着色器 33
         targetSdk = 35
         versionCode = 1
