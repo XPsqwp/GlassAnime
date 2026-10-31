@@ -202,7 +202,10 @@ fun LiquidBottomTabs(
                             val progress = dampedDragAnimation.pressProgress
                             Highlight.Default.copy(alpha = progress)
                         },
-                        onDrawSurface = { drawRect(containerColor) }
+                        onDrawSurface = {
+                            drawRect(containerColor)
+                            drawRect(accentColor.copy(alpha = 0.10f))
+                        }
                     )
                     
                     // 与可见层保持完全相同的尺寸，否则被透镜折射出来的
@@ -212,7 +215,9 @@ fun LiquidBottomTabs(
                     .padding(4f.dp)
                     .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
                 verticalAlignment = Alignment.CenterVertically,
-                content = content
+                // 这里刻意不画内容：这一层的唯一作用是给透镜提供
+                // "一层被染色的玻璃薄片"，内容由上面可见的 Row 负责。
+                content = {}
             )
         }
 
