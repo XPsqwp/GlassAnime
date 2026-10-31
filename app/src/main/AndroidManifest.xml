@@ -7,12 +7,12 @@
         android:allowBackup="true"
         android:label="SQWPFun"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GlassAnime">
+        android:theme="@style/Theme.SQWPFun">
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
-            android:theme="@style/Theme.GlassAnime">
+            android:theme="@style/Theme.SQWPFun">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
